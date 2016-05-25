@@ -1,4 +1,5 @@
 (defproject me.arrdem/crashpad "0.0.0"
+  :main crashpad.core
   :source-paths ["src/main/clj"]
   :dependencies [[me.arrdem/guten-tag "0.1.6"]
                  [me.arrdem/crajure "0.2.0"]

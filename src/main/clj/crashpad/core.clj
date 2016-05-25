@@ -1,4 +1,4 @@
-(ns user
+(ns crashpad.core
   (:require [crajure.core :as craj]
             [medley.core :refer :all]
             [clojure.java.io :as io]
