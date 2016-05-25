@@ -51,9 +51,10 @@
   (when-not (empty? coll)
     (printf "** %s\n" qstr)
     (doseq [{:keys [title price region url address] :as e} coll]
-      (printf "*** %s\n    Price: $%s\n    Region: %s%s\n    Url: %s\n\n"
-              title price region
-              (if-not (empty? address) (format "\n   %s" address) "")
+      (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
+              title price
+              (if region (format "\n    Region: %s" region) "")
+              (if-not (empty? address) (format "\n    Address: %s" address) "")
               url))))
 
 (defn do-query [visited query]
