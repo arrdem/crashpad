@@ -70,6 +70,7 @@
                       (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
                       (distinct-by :title)
+                      (map craj/item-map->preview+address+reply)
                       (distinct-by #(get % :address (Object.)))
                       (remove #(or (contains? visited (:preview %))
                                    (contains? visited (:title %))
