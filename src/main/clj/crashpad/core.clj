@@ -49,9 +49,11 @@
 (defn p [qstr coll]
   (when-not (empty? coll)
     (printf "** %s\n" qstr)
-    (doseq [{:keys [title price region url] :as e} coll]
-      (printf "*** %s\n    Price: $%s\n    Region: %s\n    Url: %s\n\n"
-              title price region url))))
+    (doseq [{:keys [title price region url address] :as e} coll]
+      (printf "*** %s\n    Price: $%s\n    Region: %s%s\n    Url: %s\n\n"
+              title price region
+              (when address (format "\n   %s" address))
+              url))))
 
 (defn do-query [visited query]
   (let [all      (craj/query-cl query)
