@@ -55,12 +55,13 @@
         (if n
           (do (println "Searching in" n)
               (let [[visited' results] (do-query visited (->query n))]
-                ;; generate visited file
-                (spit (io/writer g) visited')
-
                 ;; update output file
                 (binding [*out* outf]
                   (p n results))
 
                 (recur visited' neighborhoods (+ acc (count results)))))
-          (println "Done! found" acc "places :D"))))))
+          (do
+            ;; generate visited file
+            (spit (io/writer g) visited)
+
+            (println "Done! found" acc "places :D")))))))
