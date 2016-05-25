@@ -52,7 +52,7 @@
     (doseq [{:keys [title price region url address] :as e} coll]
       (printf "*** %s\n    Price: $%s\n    Region: %s%s\n    Url: %s\n\n"
               title price region
-              (when address (format "\n   %s" address))
+              (if-not (empty? address) (format "\n   %s" address) "")
               url))))
 
 (defn do-query [visited query]
