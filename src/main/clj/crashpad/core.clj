@@ -66,8 +66,7 @@
         ;; -- Backing service has year built information
         ;; -- Lot certificate of occupancy prior to June 13, 1979
         ;; -- YRBUILT in layer 14, "Assessor" is the target field
-        results  (->> (filter #(>= 2850 (:price %)) all)
-                      (remove #(contains? regions-blacklist (:region %)))
+        results  (->> (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
                       (distinct-by :title)
                       (map craj/item-map->preview+address+reply)
@@ -93,9 +92,11 @@
           querries))
 
 (defn ->query [neighborhood]
-  {:query   neighborhood
-   :area    "sfbay"
-   :section :housing/apartments})
+  {:query     neighborhood
+   :area      "sfbay"
+   :section   :housing/apartments
+   :price/max 2850
+   :price/min 1400})
 
 (defn -main []
   (let [neighborhoods ["south of market"
