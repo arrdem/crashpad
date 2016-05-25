@@ -2,7 +2,7 @@
   :main crashpad.core
   :source-paths ["src/main/clj"]
   :dependencies [[me.arrdem/guten-tag "0.1.6"]
-                 [me.arrdem/crajure "0.2.3"]
+                 [me.arrdem/crajure "0.3.0"]
                  [medley "0.8.1"]
                  [circleci/clj-yaml "0.5.5"]]
   :profiles {:dev  {:source-paths ["src/dev/clj"]}
