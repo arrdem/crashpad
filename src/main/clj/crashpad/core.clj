@@ -68,10 +68,13 @@
                       (distinct-by #(get % :address (Object.)))
                       (remove #(or (contains? visited (:preview %))
                                    (contains? visited (:title %))
-                                   (contains? visited (:url %)))))
-        visited' (->> (for [r results
-                            k [:preview :title :url]]
-                        (get r k))
+                                   (contains? visited (:url %))
+                                   (contains? visited (:address %)))))
+        visited' (->> (for [r     results
+                            k     [:preview :title :url :address]
+                            :let  [r (get r k)]
+                            :when r]
+                        r)
                       (into visited))]
     (swap! -regions- into (map :region all))
     [visited' results]))
