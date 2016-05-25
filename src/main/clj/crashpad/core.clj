@@ -88,9 +88,10 @@
   (let [neighborhoods ["south of market"
                        "alamo square"
                        "western addition"
-                       "hayes valley"]
-        f             (io/file "crawled-apartments.org")
-        g             (io/file "visited.edn")
+                       "hayes valley"
+                       "pacific heights"
+                       "presidio"
+                       "south beach"]
         _             (if-not (.exists g)
                         (spit g #{}))
         visited       (edn/read-string (slurp g))]
