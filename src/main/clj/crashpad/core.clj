@@ -10,6 +10,7 @@
     "portola valley"
     "mill valley"
     "palo alto"
+    "morgan hill"
     "san jose south"
     "campbell"
     "san jose north"
