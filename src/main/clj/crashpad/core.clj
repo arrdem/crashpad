@@ -92,6 +92,9 @@
                        "pacific heights"
                        "presidio"
                        "south beach"]
+        f             (io/file "/home/arrdem/Dropbox/crawled-apartments.org")
+        _             (.createNewFile f)
+        g             (io/file "/home/arrdem/Dropbox/visited.edn")
         _             (if-not (.exists g)
                         (spit g #{}))
         visited       (edn/read-string (slurp g))]
