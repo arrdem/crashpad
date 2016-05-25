@@ -6,10 +6,9 @@
 
 (defn p [qstr coll]
   (when-not (empty? coll)
-    (printf "\n* Apartments %s\n  %s\n\n"
-            (java.util.Date.) qstr)
+    (printf "** %s\n" qstr)
     (doseq [{:keys [title price region url] :as e} coll]
-      (printf "** %s\n   Price: $%s\n   Region: %s\n   Url: %s\n\n"
+      (printf "*** %s\n    Price: $%s\n    Region: %s\n    Url: %s\n\n"
               title price region url))))
 
 (defn do-query [visited query]
@@ -49,6 +48,8 @@
                         (spit g #{}))
         visited       (edn/read-string (slurp g))]
     (with-open [outf (io/writer f :append true)]
+      (binding [*out* outf]
+        (printf "* Crawl on %s\n" (java.util.Date.)))
       (loop [visited             visited
              [n & neighborhoods] neighborhoods
              acc                 0]
