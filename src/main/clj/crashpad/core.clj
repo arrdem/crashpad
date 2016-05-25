@@ -63,6 +63,7 @@
                       (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
                       (distinct-by :title)
+                      (distinct-by #(get % :address (Object.)))
                       (remove #(or (contains? visited (:preview %))
                                    (contains? visited (:title %))
                                    (contains? visited (:url %)))))
