@@ -61,6 +61,11 @@
 
 (defn do-query [visited query]
   (let [all      (craj/query-cl query)
+        ;; FIXME: annotate results with rent control status if possible
+        ;; - http://propertymap.sfplanning.org/
+        ;; -- Backing service has year built information
+        ;; -- Lot certificate of occupancy prior to June 13, 1979
+        ;; -- YRBUILT in layer 14, "Assessor" is the target field
         results  (->> (filter #(>= 2850 (:price %)) all)
                       (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
