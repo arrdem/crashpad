@@ -5,7 +5,8 @@
             [clojure.edn :as edn]))
 
 (def regions-blacklist
-  #{"redwood city"
+  #{"sonoma"
+    "redwood city"
     "portola valley"
     "mill valley"
     "palo alto"
