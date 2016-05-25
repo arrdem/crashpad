@@ -12,37 +12,55 @@
       (printf "** %s\n   Price: $%s\n   Region: %s\n   Url: %s\n\n"
               title price region url))))
 
-(defn -main [& [?qstr]]
-  (let [f       (io/file "/home/arrdem/Dropbox/crawled-apartments.org")
-        g       (io/file "/home/arrdem/Dropbox/visited.edn")
-        _       (if-not (.exists g)
-                  (spit g #{}))
-        visited (edn/read-string (slurp g))]
+(defn do-query [visited query]
+  (let [results  (->> (craj/query-cl query)
+                      (filter #(>= 2850 (:price %)))
+                      (distinct-by :preview)
+                      (distinct-by :title)
+                      (remove #(or (contains? visited (:preview %))
+                                   (contains? visited (:title %))
+                                   (contains? visited (:url %)))))
+        visited' (->> (for [r results
+                            k [:preview :title :url]]
+                        (get r k))
+                      (into visited))]
+    [visited' results]))
+
+(defn do-queries [visited querries]
+  (reduce (fn [[v r] q]
+            (let [[v₁ r₁] (do-query v q)]
+              [v₁ (into r r₁)]))
+          [visited []]
+          querries))
+
+(defn ->query [neighborhood]
+  {:query   neighborhood
+   :area    "sfbay"
+   :section :housing/apartments})
+
+(defn -main []
+  (let [neighborhoods ["south of market"
+                       "alamo square"
+                       "western addition"
+                       "hayes valley"]
+        f             (io/file "crawled-apartments.org")
+        g             (io/file "visited.edn")
+        _             (if-not (.exists g)
+                        (spit g #{}))
+        visited       (edn/read-string (slurp g))]
     (with-open [outf (io/writer f :append true)]
-      (let [results (->> {:query   (or ?qstr "")
-                          :area    "sfbay"
-                          :section :housing/apartments}
-                         craj/query-cl
-                         (filter #(>= 2850 (:price %)))
-                         (distinct-by :preview)
-                         (distinct-by :title)
-                         (remove #(or (contains? visited (:preview %))
-                                      (contains? visited (:title %))
-                                      (contains? visited (:url %)))))]
+      (loop [visited             visited
+             [n & neighborhoods] neighborhoods
+             acc                 0]
+        (if n
+          (do (println "Searching in" n)
+              (let [[visited' results] (do-query visited (->query n))]
+                ;; generate visited file
+                (spit (io/writer g) visited')
 
-        ;; generate visited file
-        (->> (for [r results
-                   k [:preview :title :url]]
-               (get r k))
-             (into visited)
-             (spit (io/writer g)))
+                ;; update output file
+                (binding [*out* outf]
+                  (p n results))
 
-        ;; update output file
-        (binding [*out* outf]
-          (p qstr results))))))
-
-(comment
-  (-main "south of market")
-  (-main "alamo square")
-  (-main "western addition")
-  (-main "hayes valley"))
+                (recur visited' neighborhoods (+ acc (count results)))))
+          (println "Done! found" acc "places :D"))))))
