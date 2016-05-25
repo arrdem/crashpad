@@ -4,6 +4,48 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]))
 
+(def regions-blacklist
+  #{"redwood city"
+    "portola valley"
+    "mill valley"
+    "palo alto"
+    "san jose south"
+    "campbell"
+    "san jose north"
+    "gilroy"
+    "berkeley"
+    "santa clara"
+    "alameda"
+    "fairfield / vacaville"
+    "san rafael"
+    "albany / el cerrito"
+    "oakland north / temescal"
+    "mountain view"
+    "concord / pleasant hill / martinez"
+    "novato"
+    "willow glen / cambrian"
+    "cole valley / ashbury hts"
+    "dublin / pleasanton / livermore"
+    "los gatos"
+    "berkeley north / hills"
+    "san leandro"
+    "cupertino"
+    "san jose west"
+    "san carlos"
+    "santa rosa"
+    "~san francisco"
+    "milpitas"
+    "cottonwood"
+    "san jose downtown"
+    "san francisco"
+    "sunnyvale"
+    "menlo park"
+    "danville / san ramon"
+    "walnut creek"})
+
+(defonce -regions-
+  (atom regions-blacklist))
+
 (defn p [qstr coll]
   (when-not (empty? coll)
     (printf "** %s\n" qstr)
@@ -12,8 +54,9 @@
               title price region url))))
 
 (defn do-query [visited query]
-  (let [results  (->> (craj/query-cl query)
-                      (filter #(>= 2850 (:price %)))
+  (let [all      (craj/query-cl query)
+        results  (->> (filter #(>= 2850 (:price %)) all)
+                      (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
                       (distinct-by :title)
                       (remove #(or (contains? visited (:preview %))
@@ -23,6 +66,7 @@
                             k [:preview :title :url]]
                         (get r k))
                       (into visited))]
+    (swap! -regions- into (map :region all))
     [visited' results]))
 
 (defn do-queries [visited querries]
