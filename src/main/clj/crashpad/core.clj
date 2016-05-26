@@ -66,7 +66,8 @@
         ;; -- Backing service has year built information
         ;; -- Lot certificate of occupancy prior to June 13, 1979
         ;; -- YRBUILT in layer 14, "Assessor" is the target field
-        results  (->> (remove #(contains? regions-blacklist (:region %)))
+        results  (->> all
+                      (remove #(contains? regions-blacklist (:region %)))
                       (distinct-by :preview)
                       (distinct-by :title)
                       (map craj/item-map->preview+address+reply)
