@@ -83,14 +83,9 @@
                         r)
                       (into visited))]
     (swap! -regions- into (map :region all))
-    [visited' results]))
-
-(defn do-queries [visited querries]
-  (reduce (fn [[v r] q]
-            (let [[v₁ r₁] (do-query v q)]
-              [v₁ (into r r₁)]))
-          [visited []]
-          querries))
+    {:visited visited'
+     :query   query
+     :results results}))
 
 (defn ->query [neighborhood]
   {:query     neighborhood
@@ -101,6 +96,7 @@
 
 (defn -main []
   (let [neighborhoods ["south of market"
+                       "soma"
                        "alamo square"
                        "western addition"
                        "hayes valley"
@@ -121,12 +117,12 @@
              acc                 0]
         (if n
           (do (println "Searching in" n)
-              (let [[visited' results] (do-query visited (->query n))]
+              (let [{:keys [visited results]} (do-query visited (->query n))]
                 ;; update output file
                 (binding [*out* outf]
                   (p n results))
 
-                (recur visited' neighborhoods (+ acc (count results)))))
+                (recur visited neighborhoods (+ acc (count results)))))
           (do
             ;; generate visited file
             (spit (io/writer g) visited)
