@@ -67,13 +67,14 @@
         ;; -- Lot certificate of occupancy prior to June 13, 1979
         ;; -- YRBUILT in layer 14, "Assessor" is the target field
         results  (->> all
+                      shuffle
                       ;; List({:title, :url, :price})
                       (remove #(contains? regions-blacklist (:region %)))
                       ;; List(...) such that regions are desirable
                       (distinct-by :title)
                       ;; List(...) such that ... & titles are unique
-                      (map craj/item-map->preview+address+reply)
-                      ;; List({:title, :url, :address, :price, :preview, :address, :reply}) & ...
+                      (map craj/item-map->preview+address)
+                      ;; List({:title, :url, :address, :price, :preview, :address}) & ...
                       (distinct-by :preview)
                       ;; List(...) such that ... & previews are unique
                       (distinct-by #(get % :address (Object.)))
