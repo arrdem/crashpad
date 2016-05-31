@@ -1,5 +1,6 @@
 (ns crashpad.core
   (:require [crajure.core :as craj]
+            [crajure.util :refer [*proxies*]]
             [medley.core :refer :all]
             [clojure.java.io :as io]
             [clojure.edn :as edn]))
