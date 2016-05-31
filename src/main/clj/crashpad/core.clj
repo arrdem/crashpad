@@ -115,23 +115,25 @@
         g             (io/file "visited.edn")
         _             (if-not (.exists g)
                         (spit g #{}))
+        h             (io/file "proxies.txt")
         visited       (edn/read-string (slurp g))]
-    (with-open [outf (io/writer f :append true)]
-      (binding [*out* outf]
-        (printf "* Crawl on %s\n" (java.util.Date.)))
-      (loop [visited             visited
-             [n & neighborhoods] neighborhoods
-             acc                 0]
-        (if n
-          (do (println "Searching in" n)
-              (let [{:keys [visited results]} (do-query visited (->query n))]
-                ;; update output file
-                (binding [*out* outf]
-                  (p n results))
+    (binding [*proxies* (vec (line-seq (io/reader h)))]
+      (with-open [outf (io/writer f :append true)]
+        (binding [*out* outf]
+          (printf "* Crawl on %s\n" (java.util.Date.)))
+        (loop [visited             visited
+               [n & neighborhoods] neighborhoods
+               acc                 0]
+          (if n
+            (do (println "Searching in" n)
+                (let [{:keys [visited results]} (do-query visited (->query n))]
+                  ;; update output file
+                  (binding [*out* outf]
+                    (p n results))
 
-                (recur visited neighborhoods (+ acc (count results)))))
-          (do
-            ;; generate visited file
-            (spit (io/writer g) visited)
+                  (recur visited neighborhoods (+ acc (count results)))))
+            (do
+              ;; generate visited file
+              (spit (io/writer g) visited)
 
-            (println "Done! found" acc "places :D")))))))
+              (println "Done! found" acc "places :D"))))))))
