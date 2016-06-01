@@ -85,7 +85,7 @@
                                    (contains? visited (:url %))
                                    #_(contains? visited (:address %)))))
         visited' (->> (for [r     results
-                            k     [:preview :title :url :address]
+                            k     [#_:preview :title :url #_:address]
                             :let  [r (get r k)]
                             :when r]
                         r)
