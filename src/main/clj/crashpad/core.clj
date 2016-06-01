@@ -81,7 +81,7 @@
                       #_(distinct-by #(get % :address (Object.)))
                       ;; List(...) such that ... & addresses if present are unique
                       (remove #(or #_(contains? visited (:preview %))
-                                   (contains? visited (:title %))
+                                   #_(contains? visited (:title %))
                                    (contains? visited (:url %))
                                    #_(contains? visited (:address %)))))
         visited' (->> (for [r     results
