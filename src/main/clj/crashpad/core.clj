@@ -110,10 +110,11 @@
              ;; "nh" [4, 8, 12, 10, 20, 18, 19, 1]
              }})
 
-(defn pr-search [qstr coll]
-  (when-not (empty? coll)
-    (printf "** %s\n" qstr)
-    (doseq [{:keys [title price region url address] :as e} coll]
+(defn pr-search [{:keys [results query] :as search}]
+  (prn search)
+  (when-not (empty? results)
+    (printf "** %s\n" query)
+    (doseq [{:keys [title price region url address] :as e} results]
       (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
               title price
               (if region (format "\n    Region: %s" region) "")
@@ -121,11 +122,12 @@
               url))))
 
 (defn pr-crawl [{:keys [results date] :as crawl}]
+  (assert (= (:type crawl) ::crawl))
   (when-not (empty? results)
     (printf "* Crawl on %s\n" date)
 
-    (doseq [{:keys [query] :as r} results]
-      (pr-search query results))))
+    (doseq [search results]
+      (pr-search search))))
 
 (defn -main []
   (let [qs      #{"south of market"
