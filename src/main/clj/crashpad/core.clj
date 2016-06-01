@@ -50,16 +50,6 @@
 (defonce -regions-
   (atom regions-blacklist))
 
-(defn p [qstr coll]
-  (when-not (empty? coll)
-    (printf "** %s\n" qstr)
-    (doseq [{:keys [title price region url address] :as e} coll]
-      (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
-              title price
-              (if region (format "\n    Region: %s" region) "")
-              (if-not (empty? address) (format "\n    Address: %s" address) "")
-              url))))
-
 (defn do-query [visited query]
   (let [all      (craj/query-cl query)
         ;; FIXME: annotate results with rent control status if possible
@@ -91,50 +81,73 @@
                         r)
                       (into visited))]
     (swap! -regions- into (map :region all))
-    {:visited visited'
+    {:type    ::search
      :query   query
-     :results results}))
+     :visited visited'
+     :results results
+     :date    (java.util.Date.)}))
+
+(defn do-crawl [visited querries]
+  (loop [[q & querries] querries
+         visited        visited
+         acc            []]
+    (if-not (nil? q)
+      (let [{:keys [visited] :as r} (do-query visited q)]
+        (recur querries visited (conj acc r)))
+      {:type    ::crawl
+       :date    (java.util.Date.)
+       :visited visited
+       :results acc})))
 
 (defn ->query [neighborhood]
   {:query   neighborhood
    :area    "sfbay"
-   :section [:housing :apartments]
+   :section [:housing :all]
    :params  {"max_price" 2850
-             "min_price" 1400}})
+             "min_price" 1400
+             "hasPic"    1
+             ;; "laundry"   [1, 2, 3]
+             ;; "nh" [4, 8, 12, 10, 20, 18, 19, 1]
+             }})
+
+(defn pr-search [qstr coll]
+  (when-not (empty? coll)
+    (printf "** %s\n" qstr)
+    (doseq [{:keys [title price region url address] :as e} coll]
+      (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
+              title price
+              (if region (format "\n    Region: %s" region) "")
+              (if-not (empty? address) (format "\n    Address: %s" address) "")
+              url))))
+
+(defn pr-crawl [{:keys [results date] :as crawl}]
+  (when-not (empty? results)
+    (printf "* Crawl on %s\n" date)
+
+    (doseq [{:keys [query] :as r} results]
+      (pr-search query results))))
 
 (defn -main []
-  (let [neighborhoods ["south of market"
-                       "soma"
-                       "alamo square"
-                       "western addition"
-                       "hayes valley"
-                       "pacific heights"
-                       "presidio"
-                       "south beach"]
-        f             (io/file "crawled-apartments.org")
-        _             (.createNewFile f)
-        g             (io/file "visited.edn")
-        _             (if-not (.exists g)
-                        (spit g #{}))
-        h             (io/file "proxies.txt")
-        visited       (edn/read-string (slurp g))]
-    (binding [*proxies* (vec (line-seq (io/reader h)))]
-      (with-open [outf (io/writer f :append true)]
-        (binding [*out* outf]
-          (printf "* Crawl on %s\n" (java.util.Date.)))
-        (loop [visited             visited
-               [n & neighborhoods] neighborhoods
-               acc                 0]
-          (if n
-            (do (println "Searching in" n)
-                (let [{:keys [visited results]} (do-query visited (->query n))]
-                  ;; update output file
-                  (binding [*out* outf]
-                    (p n results))
-
-                  (recur visited neighborhoods (+ acc (count results)))))
-            (do
-              ;; generate visited file
-              (spit (io/writer g) visited)
-
-              (println "Done! found" acc "places :D"))))))))
+  (let [qs      #{"south of market"
+                  "soma"
+                  "alamo square"
+                  "western addition"
+                  "hayes valley"
+                  "pacific heights"
+                  "presidio"
+                  "south beach"
+                  "lower haight"
+                  "mission bay"
+                  "inner mission"}
+        f       (io/file "crawled-apartments.org")
+        _       (.createNewFile f)
+        g       (io/file "visited.edn")
+        _       (if-not (.exists g)
+                  (spit g #{}))
+        h       (io/file "proxies.txt")
+        visited (edn/read-string (slurp g))
+        results (binding [*proxies* (vec (line-seq (io/reader h)))]
+                  (do-crawl visited (map ->query qs)))]
+    (with-open [outf (io/writer f :append true)]
+      (binding [*out* outf]
+        (pr-crawl results)))))
