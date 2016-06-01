@@ -96,11 +96,11 @@
      :results results}))
 
 (defn ->query [neighborhood]
-  {:query     neighborhood
-   :area      "sfbay"
-   :section   :housing/apartments
-   :price/max 2850
-   :price/min 1400})
+  {:query   neighborhood
+   :area    "sfbay"
+   :section [:housing :apartments]
+   :params  {"max_price" 2850
+             "min_price" 1400}})
 
 (defn -main []
   (let [neighborhoods ["south of market"
