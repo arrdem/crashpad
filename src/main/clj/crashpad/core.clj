@@ -74,16 +74,16 @@
                       ;; List(...) such that regions are desirable
                       (distinct-by :title)
                       ;; List(...) such that ... & titles are unique
-                      (map craj/item-map->preview+address)
+                      #_(map craj/item-map->preview+address)
                       ;; List({:title, :url, :address, :price, :preview, :address}) & ...
-                      (distinct-by :preview)
+                      #_(distinct-by :preview)
                       ;; List(...) such that ... & previews are unique
-                      (distinct-by #(get % :address (Object.)))
+                      #_(distinct-by #(get % :address (Object.)))
                       ;; List(...) such that ... & addresses if present are unique
-                      (remove #(or (contains? visited (:preview %))
+                      (remove #(or #_(contains? visited (:preview %))
                                    (contains? visited (:title %))
                                    (contains? visited (:url %))
-                                   (contains? visited (:address %)))))
+                                   #_(contains? visited (:address %)))))
         visited' (->> (for [r     results
                             k     [:preview :title :url :address]
                             :let  [r (get r k)]
