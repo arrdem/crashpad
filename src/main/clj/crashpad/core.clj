@@ -101,7 +101,7 @@
 
 (defn ->query [neighborhood]
   {:query   neighborhood
-   :area    "sfbay"
+   :area    :sfbay
    :section [:housing :all]
    :params  {"max_price" 2850
              "min_price" 1400
@@ -117,17 +117,18 @@
     (doseq [{:keys [title price region url address] :as e} results]
       (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
               title price
-              (if region (format "\n    Region: %s" region) "")
-              (if-not (empty? address) (format "\n    Address: %s" address) "")
+              (when region
+                (format "\n    Region: %s" region) "")
+              (when-not (empty? address)
+                (format "\n    Address: %s" address) "")
               url))))
 
 (defn pr-crawl [{:keys [results date] :as crawl}]
   (assert (= (:type crawl) ::crawl))
   (when-not (every? empty? (map :results results))
     (printf "* Crawl on %s\n" date)
-
     (doseq [search results]
-      (pr-search search))))
+      (pr-search @search))))
 
 (defn -main []
   (let [qs      #{"south of market"
@@ -136,8 +137,6 @@
                   "western addition"
                   "hayes valley"
                   "pacific heights"
-                  "presidio"
-                  "south beach"
                   "lower haight"
                   "mission bay"
                   "inner mission"}
@@ -148,8 +147,26 @@
                   (spit g #{}))
         h       (io/file "proxies.txt")
         visited (edn/read-string (slurp g))
-        results (binding [*proxies* (vec (line-seq (io/reader h)))]
-                  (do-crawl visited (map ->query qs)))]
+        results (binding [*proxies* (atom {:candidates (set (line-seq (io/reader h)))})]
+                  (try
+                    (do-crawl visited (map ->query qs))
+                    (finally
+                      ;; Save the updated proxies list
+                      (with-open [outf (io/writer h)]
+                        (binding [*out* outf]
+                          (doseq [c (some->> *proxies* deref :candidates)]
+                            (println c))
+                          (doseq [c (some->> *proxies* deref :usable)]
+                            (println c))))
+
+                      (println "[main] Proxies list dumped"))))]
+    
     (with-open [outf (io/writer f :append true)]
       (binding [*out* outf]
-        (pr-crawl results)))))
+        (pr-crawl results)))
+    (println "[main] results dumped")
+
+    (with-open [outf (io/writer g)]
+      (binding [*out* outf]
+        (println (set (:visited results)))))
+    (println "[main] visited dumped")))
