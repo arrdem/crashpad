@@ -5,48 +5,6 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]))
 
-(def regions-blacklist
-  #{"sonoma"
-    "redwood city"
-    "portola valley"
-    "mill valley"
-    "palo alto"
-    "morgan hill"
-    "oakland lake merritt / grand"
-    "san jose south"
-    "campbell"
-    "san jose north"
-    "gilroy"
-    "berkeley"
-    "santa clara"
-    "alameda"
-    "fairfield / vacaville"
-    "san rafael"
-    "albany / el cerrito"
-    "oakland north / temescal"
-    "mountain view"
-    "concord / pleasant hill / martinez"
-    "novato"
-    "willow glen / cambrian"
-    "cole valley / ashbury hts"
-    "dublin / pleasanton / livermore"
-    "los gatos"
-    "berkeley north / hills"
-    "san leandro"
-    "cupertino"
-    "san jose west"
-    "san carlos"
-    "santa rosa"
-    "~san francisco"
-    "milpitas"
-    "cottonwood"
-    "san jose downtown"
-    "san francisco"
-    "sunnyvale"
-    "menlo park"
-    "danville / san ramon"
-    "walnut creek"})
-
 (defn do-query [visited query]
   (let [;; FIXME: annotate results with rent control status if possible
         ;; - http://propertymap.sfplanning.org/
@@ -55,7 +13,6 @@
         ;; -- YRBUILT in layer 14, "Assessor" is the target field
 
         results  (->> (craj/query-cl query)
-                      (remove #(contains? regions-blacklist (:region %)))
                       (take-while #(not (contains? visited (:url %)))))
         visited' (->> (for [r     results
                             k     [#_:preview :title :url #_:address]
