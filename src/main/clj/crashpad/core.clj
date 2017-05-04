@@ -41,7 +41,7 @@
 (defn ->query [neighborhood]
   {:query   neighborhood
    :area    :sfbay
-   :section [:housing :all]
+   :section [:housing :apartments]
    :params  {"max_price" 2850
              "min_price" 1400
              "hasPic"    1
