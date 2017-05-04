@@ -116,10 +116,8 @@
     (doseq [{:keys [title price region url address] :as e} results]
       (printf "*** %s\n    Price: $%s%s%s\n    Url: %s\n\n"
               title price
-              (when region
-                (format "\n    Region: %s" region) "")
-              (when-not (empty? address)
-                (format "\n    Address: %s" address) "")
+              (if region (format "\n    Region: %s" region) "")
+              (if-not (empty? address) (format "\n    Address: %s" address) "")
               url))))
 
 (defn pr-crawl [{:keys [results date] :as crawl}]
