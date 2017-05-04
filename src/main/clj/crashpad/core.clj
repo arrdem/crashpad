@@ -48,29 +48,15 @@
     "walnut creek"})
 
 (defn do-query [visited query]
-  (let [all      (craj/query-cl query)
-        ;; FIXME: annotate results with rent control status if possible
+  (let [;; FIXME: annotate results with rent control status if possible
         ;; - http://propertymap.sfplanning.org/
         ;; -- Backing service has year built information
         ;; -- Lot certificate of occupancy prior to June 13, 1979
         ;; -- YRBUILT in layer 14, "Assessor" is the target field
-        results  (->> all
-                      shuffle
-                      ;; List({:title, :url, :price})
+
+        results  (->> (craj/query-cl query)
                       (remove #(contains? regions-blacklist (:region %)))
-                      ;; List(...) such that regions are desirable
-                      (distinct-by :title)
-                      ;; List(...) such that ... & titles are unique
-                      #_(map craj/item-map->preview+address)
-                      ;; List({:title, :url, :address, :price, :preview, :address}) & ...
-                      #_(distinct-by :preview)
-                      ;; List(...) such that ... & previews are unique
-                      #_(distinct-by #(get % :address (Object.)))
-                      ;; List(...) such that ... & addresses if present are unique
-                      (remove #(or #_(contains? visited (:preview %))
-                                   #_(contains? visited (:title %))
-                                   (contains? visited (:url %))
-                                   #_(contains? visited (:address %)))))
+                      (take-while #(not (contains? visited (:url %)))))
         visited' (->> (for [r     results
                             k     [#_:preview :title :url #_:address]
                             :let  [r (get r k)]
@@ -102,6 +88,7 @@
    :params  {"max_price" 2850
              "min_price" 1400
              "hasPic"    1
+             "sort"      "date"
              ;; "laundry"   [1, 2, 3]
              ;; "nh" [4, 8, 12, 10, 20, 18, 19, 1]
              }})
