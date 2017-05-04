@@ -111,7 +111,6 @@
              }})
 
 (defn pr-search [{:keys [results query] :as search}]
-  (prn search)
   (when-not (empty? results)
     (printf "** %s\n" query)
     (doseq [{:keys [title price region url address] :as e} results]
