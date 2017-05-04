@@ -47,9 +47,6 @@
     "danville / san ramon"
     "walnut creek"})
 
-(defonce -regions-
-  (atom regions-blacklist))
-
 (defn do-query [visited query]
   (let [all      (craj/query-cl query)
         ;; FIXME: annotate results with rent control status if possible
@@ -80,7 +77,6 @@
                             :when r]
                         r)
                       (into visited))]
-    (swap! -regions- into (map :region all))
     {:type    ::search
      :query   query
      :visited visited'
