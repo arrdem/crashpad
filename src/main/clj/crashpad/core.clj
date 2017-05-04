@@ -15,7 +15,7 @@
         results  (->> (craj/query-cl query)
                       (take-while #(not (contains? visited (:url %)))))
         visited' (->> (for [r     results
-                            k     [#_:preview :title :url #_:address]
+                            k     [#_:preview #_:title :url #_:address]
                             :let  [r (get r k)]
                             :when r]
                         r)
