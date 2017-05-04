@@ -102,7 +102,7 @@
         result-count              (apply + (map #(-> % :results count) results))]
 
     (when-not (zero? result-count)
-      (printf "[main] found %d new listings" result-count)
+      (printf "[main] found %d new listings\n" result-count)
       (with-open [outf (io/writer f :append true)]
         (binding [*out* outf]
           (pr-crawl crawl)))
