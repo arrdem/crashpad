@@ -166,5 +166,5 @@
 
     (with-open [outf (io/writer g)]
       (binding [*out* outf]
-        (println (set (:visited results)))))
+        (prn (set (:visited results)))))
     (println "[main] visited dumped")))
