@@ -149,15 +149,16 @@
                     (do-crawl visited (map ->query qs))
                     (finally
                       ;; Save the updated proxies list
-                      (with-open [outf (io/writer h)]
-                        (binding [*out* outf]
-                          (doseq [c (some->> *proxies* deref :candidates)]
-                            (println c))
-                          (doseq [c (some->> *proxies* deref :usable)]
-                            (println c))))
+                      (when *proxies*
+                        (with-open [outf (io/writer h)]
+                          (binding [*out* outf]
+                            (doseq [c (some-> *proxies* deref :candidates)]
+                              (println c))
+                            (doseq [c (some-> *proxies* deref :usable)]
+                              (println c))))
 
-                      (println "[main] Proxies list dumped"))))]
-    
+                        (println "[main] Proxies list dumped")))))]
+
     (with-open [outf (io/writer f :append true)]
       (binding [*out* outf]
         (pr-crawl results)))
