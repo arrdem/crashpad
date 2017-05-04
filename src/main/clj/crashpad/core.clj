@@ -104,11 +104,14 @@
               url))))
 
 (defn pr-crawl [{:keys [results date] :as crawl}]
-  (assert (= (:type crawl) ::crawl))
-  (when-not (every? empty? (map :results results))
-    (printf "* Crawl on %s\n" date)
-    (doseq [search results]
-      (pr-search search))))
+  (printf "* Crawl on %s\n" date)
+  (doseq [search results]
+    (pr-search search)))
+
+(defn pr-proxies [{:keys [candidates usable]}]
+  (doseq [proxy (concat candidates usable)
+          :when proxy]
+    (println proxy)))
 
 (defn -main []
   (let [qs      #{"south of market"
@@ -135,19 +138,20 @@
                       (when *proxies*
                         (with-open [outf (io/writer h)]
                           (binding [*out* outf]
-                            (doseq [c (some-> *proxies* deref :candidates)]
-                              (println c))
-                            (doseq [c (some-> *proxies* deref :usable)]
-                              (println c))))
+                            (pr-proxies @*proxies*)))
+                        (println "[main] Proxies list dumped")))))
+        
+        {:keys [results visited]} crawl
+        result-count              (apply + (map #(-> % :results count) results))]
 
-                        (println "[main] Proxies list dumped")))))]
+    (when-not (zero? result-count)
+      (printf "[main] found %d new listings" result-count)
+      (with-open [outf (io/writer f :append true)]
+        (binding [*out* outf]
+          (pr-crawl crawl)))
+      (println "[main] results dumped")
 
-    (with-open [outf (io/writer f :append true)]
-      (binding [*out* outf]
-        (pr-crawl results)))
-    (println "[main] results dumped")
-
-    (with-open [outf (io/writer g)]
-      (binding [*out* outf]
-        (prn (set (:visited results)))))
-    (println "[main] visited dumped")))
+      (with-open [outf (io/writer g)]
+        (binding [*out* outf]
+          (prn visited)))
+      (println "[main] visited dumped"))))
