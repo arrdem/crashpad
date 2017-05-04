@@ -125,7 +125,7 @@
   (when-not (every? empty? (map :results results))
     (printf "* Crawl on %s\n" date)
     (doseq [search results]
-      (pr-search @search))))
+      (pr-search search))))
 
 (defn -main []
   (let [qs      #{"south of market"
