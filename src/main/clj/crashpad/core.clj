@@ -87,7 +87,7 @@
                   (spit g #{}))
         h       (io/file "proxies.txt")
         visited (edn/read-string (slurp g))
-        results (binding [*proxies* (atom {:candidates (set (line-seq (io/reader h)))})]
+        crawl   (binding [*proxies* nil #_ (atom {:candidates (set (line-seq (io/reader h)))})]
                   (try
                     (do-crawl visited (map ->query qs))
                     (finally
