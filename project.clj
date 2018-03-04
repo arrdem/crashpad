@@ -4,10 +4,8 @@
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [me.arrdem/guten-tag "0.1.6"]
                  [me.arrdem/crajure "0.4.0"]
-                 [medley "0.8.1"]
-                 [circleci/clj-yaml "0.5.5"]]
+                 [medley "0.8.1"]]
 
   :source-paths      ["src/main/clj"
                       "src/main/cljc"]
